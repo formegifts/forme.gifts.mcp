@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Credentials } from '../../src/auth/credentials'
-import { runAuth, type AuthDeps } from '../../src/auth/cli'
+import { runAuth, runLogout, runWhoami, type AuthDeps } from '../../src/auth/cli'
 
 const makeDeps = (overrides: Partial<AuthDeps> = {}): AuthDeps & { written: Credentials[] } => {
   const written: Credentials[] = []
@@ -72,5 +72,37 @@ describe('runAuth', () => {
     await runAuth(deps)
     expect(sleep).toHaveBeenNthCalledWith(1, 1000)
     expect(sleep).toHaveBeenNthCalledWith(2, 2000)
+  })
+})
+
+describe('runLogout', () => {
+  it('calls deleteCredentials and logs', async () => {
+    const deleteCreds = vi.fn(async () => {})
+    const log = vi.fn()
+    await runLogout(deleteCreds, log)
+    expect(deleteCreds).toHaveBeenCalledOnce()
+    expect(log).toHaveBeenCalledWith('Signed out.')
+  })
+})
+
+describe('runWhoami', () => {
+  it('prints email when signed in', async () => {
+    const read = async (): Promise<Credentials | null> => ({
+      access_token: 'a',
+      refresh_token: 'r',
+      expires_at: new Date().toISOString(),
+      email: 'user@example.com',
+    })
+    const log = vi.fn()
+    await runWhoami(read, log)
+    expect(log).toHaveBeenCalledWith('user@example.com')
+  })
+
+  it('prints not-signed-in message and sets exit code when no creds', async () => {
+    const log = vi.fn()
+    await runWhoami(async () => null, log)
+    expect(log).toHaveBeenCalledWith('Not signed in. Run `forme-mcp auth` to sign in.')
+    expect(process.exitCode).toBe(1)
+    process.exitCode = 0
   })
 })
