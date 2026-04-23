@@ -1,0 +1,33 @@
+{
+  "name": "@formegifts/mcp",
+  "version": "0.0.0",
+  "description": "MCP server for forme.gifts wishlist app",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "bin": { "forme-mcp": "./dist/bin.js" },
+  "main": "./dist/bin.js",
+  "exports": {
+    ".": "./dist/bin.js"
+  },
+  "homepage": "https://forme.gifts/mcp",
+  "bugs": { "email": "feedback@forme.gifts" },
+  "scripts": {
+    "build": "tsup && chmod +x dist/bin.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}
