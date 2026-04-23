@@ -8,6 +8,6 @@ export const openBrowser = (url: string): void => {
       : platform() === 'win32'
         ? (['cmd', ['/c', 'start', '', url]] as const)
         : (['xdg-open', [url]] as const)
-  const child = spawn(cmd, args as string[], { stdio: 'ignore', detached: true })
+  const child = spawn(cmd, [...args], { stdio: 'ignore', detached: true })
   child.unref()
 }
