@@ -1,4 +1,5 @@
 import { runAuth, runLogout, runWhoami } from './auth/cli'
+import { runServer } from './server'
 
 export type DispatchDeps = {
   runAuth: () => Promise<void>
@@ -7,12 +8,6 @@ export type DispatchDeps = {
   runServer: () => Promise<void>
   log?: (msg: string) => void
   exit?: (code: number) => void
-}
-
-// Phase 1: server isn't built yet. Stub that errors clearly.
-const phase1ServerStub = async (): Promise<void> => {
-  console.error('The MCP server ships in Phase 2. Use `forme-mcp auth` to test Phase 1.')
-  process.exitCode = 1
 }
 
 export const dispatch = async (argv: string[], deps: DispatchDeps): Promise<void> => {
@@ -37,7 +32,7 @@ if (isMain) {
     runAuth,
     runLogout,
     runWhoami,
-    runServer: phase1ServerStub,
+    runServer,
   }).catch((err) => {
     console.error(err instanceof Error ? err.message : String(err))
     process.exitCode = 1
