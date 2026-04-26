@@ -32,7 +32,8 @@ export const mapSupabaseError = (err: unknown): McpToolError => {
   if (e.status === 401) return new McpToolError('unauthenticated', msg, false)
   if (e.code === '42501') return new McpToolError('permission_denied', msg, false)
   if (e.code === 'PGRST116') return new McpToolError('invalid_argument', msg, false)
-  if (e.code === '23502' || e.code === '23514') return new McpToolError('invalid_argument', msg, false)
+  if (e.code === '23502' || e.code === '23514')
+    return new McpToolError('invalid_argument', msg, false)
   if (msg.toLowerCase().includes('fetch failed') || msg.toLowerCase().includes('network')) {
     return new McpToolError('unavailable', msg, true)
   }

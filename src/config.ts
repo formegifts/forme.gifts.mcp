@@ -9,3 +9,6 @@ export const SUPABASE_ANON_KEY =
 
 export const DEVICE_FLOW_MIN_POLL_INTERVAL_SECONDS = 5
 export const DEVICE_FLOW_TIMEOUT_SECONDS = 600
+
+export const SERVER_NAME = 'formegifts'
+export const SERVER_VERSION = '0.1.0'

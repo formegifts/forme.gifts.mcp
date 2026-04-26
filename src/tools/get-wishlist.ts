@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { mapSupabaseError, McpToolError } from '../errors'
+import { McpToolError, mapSupabaseError } from '../errors'
 import type { GiftRow, WishlistRow } from '../supabase-types'
 import type { ToolHandler } from './with-auth'
 
@@ -20,11 +20,7 @@ export const getWishlist: ToolHandler<GetWishlistInput, GetWishlistOutput> = asy
   const hasId = typeof input.id === 'string' && input.id.length > 0
   const hasName = typeof input.name === 'string' && input.name.length > 0
   if (hasId === hasName) {
-    throw new McpToolError(
-      'invalid_argument',
-      'Provide exactly one of `id` or `name`.',
-      false
-    )
+    throw new McpToolError('invalid_argument', 'Provide exactly one of `id` or `name`.', false)
   }
 
   const column = hasId ? 'id' : 'name'

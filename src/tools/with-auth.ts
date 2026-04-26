@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { refreshIfNeeded as defaultRefreshIfNeeded, SessionEndedError } from '../auth/refresh'
-import { mapSupabaseError, McpToolError, type ToolErrorCode } from '../errors'
+import { McpToolError, mapSupabaseError, type ToolErrorCode } from '../errors'
 import { createAuthedSupabaseClient as defaultCreateClient } from '../supabase'
 
 export type ToolContext = { client: SupabaseClient }
