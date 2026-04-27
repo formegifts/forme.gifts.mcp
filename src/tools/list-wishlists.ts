@@ -23,7 +23,9 @@ type Row = {
   gifts: Array<{ count: number }> | null
 }
 
-export const listWishlists: ToolHandler<ListWishlistsInput, WishlistSummary[]> = async (
+export type ListWishlistsOutput = { wishlists: WishlistSummary[] }
+
+export const listWishlists: ToolHandler<ListWishlistsInput, ListWishlistsOutput> = async (
   _input,
   { client }
 ) => {
@@ -33,7 +35,7 @@ export const listWishlists: ToolHandler<ListWishlistsInput, WishlistSummary[]> =
     .eq('disabled', false)
     .order('updated_at', { ascending: false })
   if (error) throw mapSupabaseError(error)
-  return ((data ?? []) as Row[]).map((row) => ({
+  const wishlists = ((data ?? []) as Row[]).map((row) => ({
     id: row.id,
     name: row.name,
     description: row.description,
@@ -41,4 +43,5 @@ export const listWishlists: ToolHandler<ListWishlistsInput, WishlistSummary[]> =
     gift_count: row.gifts?.[0]?.count ?? 0,
     updated_at: row.updated_at,
   }))
+  return { wishlists }
 }

@@ -48,16 +48,18 @@ describe('list_wishlists', () => {
     expect(calls[1].args[0]).toContain('gifts(count)')
     expect(calls[2]).toEqual({ method: 'eq', args: ['disabled', false] })
     expect(calls[3]).toEqual({ method: 'order', args: ['updated_at', { ascending: false }] })
-    expect(result).toEqual([
-      {
-        id: 'w1',
-        name: 'Kitchen',
-        description: null,
-        event_date: null,
-        gift_count: 3,
-        updated_at: '2026-04-25T00:00:00Z',
-      },
-    ])
+    expect(result).toEqual({
+      wishlists: [
+        {
+          id: 'w1',
+          name: 'Kitchen',
+          description: null,
+          event_date: null,
+          gift_count: 3,
+          updated_at: '2026-04-25T00:00:00Z',
+        },
+      ],
+    })
   })
 
   it('treats missing gifts aggregate as 0', async () => {
@@ -72,7 +74,7 @@ describe('list_wishlists', () => {
       },
     ])
     const result = await listWishlists({}, { client })
-    expect(result[0].gift_count).toBe(0)
+    expect(result.wishlists[0].gift_count).toBe(0)
   })
 
   it('throws via mapSupabaseError when supabase returns an error', async () => {
