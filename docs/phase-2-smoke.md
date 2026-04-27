@@ -9,18 +9,33 @@
 
 ```sh
 # build the package
-FORME_API_BASE=http://localhost:3000 \
-FORME_SUPABASE_URL=http://localhost:54321 \
-FORME_SUPABASE_ANON_KEY=<local-anon> \
 bun run build
 ```
 
-The env vars matter at **runtime** (config.ts reads `process.env` on import), so what counts is the shell that spawns the server. Claude Code inherits your shell env when it spawns MCP servers.
+The `FORME_*` env vars are read at **runtime** (config.ts reads `process.env` on import), so they must be set in the shell that spawns the server **and** in any shell that runs the auth CLI directly. Claude Code inherits your shell env when it spawns MCP servers.
+
+Set them inline whenever you invoke the CLI or build, e.g.:
+
+```sh
+FORME_API_BASE=http://localhost:3000 \
+FORME_SUPABASE_URL=http://localhost:54321 \
+FORME_SUPABASE_ANON_KEY=<local-anon> \
+node dist/bin.js auth
+```
+
+Common gotcha: setting the vars with `export` in one terminal and running `node` in another — they don't carry over. Use the inline form, or `export` and re-run in the same shell.
 
 ## Add to Claude Code
 
+Pass `FORME_*` env vars via `--env` so Claude Code propagates them to the spawned MCP server (Claude Code's process env is not the same as your shell env, so an `export` in your terminal won't reach the server unless Claude Code itself was launched from that shell).
+
 ```sh
-claude mcp add --scope user forme-local -- node $(pwd)/dist/bin.js
+claude mcp remove forme-local 2>/dev/null  # ignore "not found" on first run
+claude mcp add --scope user forme-local \
+  --env FORME_API_BASE=http://localhost:3000 \
+  --env FORME_SUPABASE_URL=http://localhost:54321 \
+  --env FORME_SUPABASE_ANON_KEY=<local-anon> \
+  -- node $(pwd)/dist/bin.js
 ```
 
 Restart Claude Code. In a new conversation:
@@ -31,8 +46,20 @@ Restart Claude Code. In a new conversation:
 
 ## Negative checks
 
+> **Gotcha:** if `list_wishlists` returns `{ code: "unauthenticated", message: "Invalid API key" }`, the issue is **not** stale credentials — it's that `FORME_SUPABASE_ANON_KEY` wasn't passed to the spawned MCP server. The server falls back to the placeholder in config.ts:8 and Supabase rejects it with a 401, which currently maps to `unauthenticated`. Re-running auth won't help; re-add the MCP with the `--env` flags above.
+
 1. Edit `~/.config/forme/credentials.json` and corrupt the refresh token. Ask Claude to list wishlists. The tool result should carry `{ code: "unauthenticated", retryable: false }` and a message telling the user to run `forme-mcp auth`.
-2. Restore credentials with `forme-mcp auth`.
+2. Restore credentials by re-running the auth CLI. Pre-publish (running from `dist/`), use the inline form:
+
+   ```sh
+   FORME_API_BASE=http://localhost:3000 \
+   FORME_SUPABASE_URL=http://localhost:54321 \
+   FORME_SUPABASE_ANON_KEY=<local-anon> \
+   node dist/bin.js auth
+   ```
+
+   The first line printed should be `To sign in, open: http://localhost:3000/auth/device?code=…`. If it shows `https://forme.gifts/...`, `FORME_API_BASE` didn't reach the process — re-run inline as above.
+
 3. Ask Claude to fetch a wishlist by a non-existent name. Tool result should carry `{ code: "invalid_argument", ... }`.
 
 ## Cleanup
@@ -43,4 +70,4 @@ claude mcp remove forme-local
 
 ## Production smoke
 
-Same flow without the `FORME_*` env vars (defaults point at prod). Use a low-stakes account.
+Same flow without the `FORME_*` env vars (defaults point at prod). Use a low-stakes account. Auth CLI: `node dist/bin.js auth` (or `forme-mcp auth` once published).
