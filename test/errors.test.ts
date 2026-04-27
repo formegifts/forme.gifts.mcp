@@ -44,6 +44,23 @@ describe('mapSupabaseError', () => {
     expect(err.retryable).toBe(false)
   })
 
+  it('maps invalid_api_key code to failed_precondition with config-pointing message', () => {
+    const err = mapSupabaseError({
+      status: 401,
+      code: 'invalid_api_key',
+      message: 'Invalid API key',
+    })
+    expect(err.code).toBe('failed_precondition')
+    expect(err.retryable).toBe(false)
+    expect(err.message).toMatch(/FORME_SUPABASE_ANON_KEY/)
+  })
+
+  it('maps "Invalid API key" message-only to failed_precondition (no code field)', () => {
+    const err = mapSupabaseError({ status: 401, message: 'Invalid API key' })
+    expect(err.code).toBe('failed_precondition')
+    expect(err.retryable).toBe(false)
+  })
+
   it('maps network failure to unavailable retryable', () => {
     const err = mapSupabaseError({ message: 'fetch failed' })
     expect(err.code).toBe('unavailable')
