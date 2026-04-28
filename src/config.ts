@@ -1,24 +1,13 @@
-export const PLACEHOLDER_ANON_KEY = 'REPLACE_WITH_PUBLISHED_ANON_KEY'
-
 export const API_BASE = process.env.FORME_API_BASE ?? 'https://forme.gifts'
 export const SUPABASE_URL =
   process.env.FORME_SUPABASE_URL ?? 'https://fybvorxzkuyytvpjqgzv.supabase.co'
+// Public anon key — same value the web app ships in its production client bundle.
 export const SUPABASE_ANON_KEY =
   process.env.FORME_SUPABASE_ANON_KEY ??
-  // Public anon key — same value the web app ships in its client bundle.
-  // TODO: replace with the real published anon key before Phase 5.
-  PLACEHOLDER_ANON_KEY
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5YnZvcnh6a3V5eXR2cGpxZ3p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTAxMjksImV4cCI6MjA4OTE4NjEyOX0.6sa4R9SHUhtE0n9mPOj4MW7o9fThgfjjr-Cn24pxckU'
 
 export const DEVICE_FLOW_MIN_POLL_INTERVAL_SECONDS = 5
 export const DEVICE_FLOW_TIMEOUT_SECONDS = 600
 
 export const SERVER_NAME = 'formegifts'
 export const SERVER_VERSION = '0.1.0'
-
-export const assertServerConfig = (anonKey: string = SUPABASE_ANON_KEY): void => {
-  if (anonKey === PLACEHOLDER_ANON_KEY) {
-    throw new Error(
-      'FORME_SUPABASE_ANON_KEY is unset. Pass it via --env when registering the MCP server (see docs/phase-2-smoke.md).'
-    )
-  }
-}

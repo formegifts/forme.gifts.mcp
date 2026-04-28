@@ -46,7 +46,7 @@ Restart Claude Code. In a new conversation:
 
 ## Negative checks
 
-> **Gotcha:** if `list_wishlists` returns `{ code: "unauthenticated", message: "Invalid API key" }`, the issue is **not** stale credentials — it's that `FORME_SUPABASE_ANON_KEY` wasn't passed to the spawned MCP server. The server falls back to the placeholder in config.ts:8 and Supabase rejects it with a 401, which currently maps to `unauthenticated`. Re-running auth won't help; re-add the MCP with the `--env` flags above.
+> **Gotcha:** for local dev, if you forget the `--env` flags the server silently falls back to the production defaults baked into `config.ts`. `list_wishlists` will return *production* data instead of localhost. Re-add the MCP with the `--env` flags above to scope it to your local stack.
 
 1. Edit `~/.config/forme/credentials.json` and corrupt the refresh token. Ask Claude to list wishlists. The tool result should carry `{ code: "unauthenticated", retryable: false }` and a message telling the user to run `forme-mcp auth`.
 2. Restore credentials by re-running the auth CLI. Pre-publish (running from `dist/`), use the inline form:
