@@ -1,8 +1,9 @@
 {
   "name": "@formegifts/mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MCP server for forme.gifts wishlist app",
   "type": "module",
+  "license": "UNLICENSED",
   "engines": {
     "node": ">=24"
   },
@@ -13,8 +14,18 @@
   "exports": {
     ".": "./dist/bin.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "homepage": "https://forme.gifts/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/formegifts/forme.gifts.mcp.git"
+  },
   "bugs": {
+    "url": "https://github.com/formegifts/forme.gifts.mcp/issues",
     "email": "feedback@forme.gifts"
   },
   "scripts": {
