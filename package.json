@@ -3,14 +3,20 @@
   "version": "0.0.0",
   "description": "MCP server for forme.gifts wishlist app",
   "type": "module",
-  "engines": { "node": ">=24" },
-  "bin": { "forme-mcp": "./dist/bin.js" },
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "forme-mcp": "./dist/bin.js"
+  },
   "main": "./dist/bin.js",
   "exports": {
     ".": "./dist/bin.js"
   },
   "homepage": "https://forme.gifts/mcp",
-  "bugs": { "email": "feedback@forme.gifts" },
+  "bugs": {
+    "email": "feedback@forme.gifts"
+  },
   "scripts": {
     "build": "tsup && chmod +x dist/bin.js",
     "test": "vitest run",
@@ -20,14 +26,18 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "@supabase/supabase-js": "^2.49.4",
-    "zod": "^3.24.4"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@supabase/supabase-js": "^2.104.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.10",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.3"
+    "@biomejs/biome": "^2.4.12",
+    "@types/node": "^24",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4"
+  },
+  "overrides": {
+    "zod": "^4.3.6"
   }
 }
