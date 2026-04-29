@@ -38,10 +38,25 @@ describe('mapSupabaseError', () => {
     expect(err.code).toBe('invalid_argument')
   })
 
-  it('maps HTTP 401 to unauthenticated', () => {
-    const err = mapSupabaseError({ status: 401, message: 'JWT expired' })
+  it('maps non-JWT HTTP 401 to unauthenticated, preserving original message', () => {
+    const err = mapSupabaseError({ status: 401, message: 'Unauthorized' })
     expect(err.code).toBe('unauthenticated')
     expect(err.retryable).toBe(false)
+    expect(err.message).toBe('Unauthorized')
+  })
+
+  it('maps "No suitable key or wrong key type" to unauthenticated with auth instructions', () => {
+    const err = mapSupabaseError({ message: 'No suitable key or wrong key type' })
+    expect(err.code).toBe('unauthenticated')
+    expect(err.retryable).toBe(false)
+    expect(err.message).toMatch(/npx @formegifts\/mcp auth/)
+  })
+
+  it('maps generic JWS verification failures to unauthenticated', () => {
+    const err = mapSupabaseError({ message: 'jws: signature verification failed' })
+    expect(err.code).toBe('unauthenticated')
+    expect(err.retryable).toBe(false)
+    expect(err.message).toMatch(/npx @formegifts\/mcp auth/)
   })
 
   it('maps invalid_api_key code to failed_precondition with config-pointing message', () => {

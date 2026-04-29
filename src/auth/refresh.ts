@@ -1,11 +1,12 @@
 import { API_BASE } from '../config'
+import { SESSION_ENDED_MESSAGE } from '../errors'
 import { deleteCredentials, readCredentials, writeCredentials } from './credentials'
 
 const REFRESH_LEEWAY_MS = 60 * 1000
 
 export class SessionEndedError extends Error {
   constructor() {
-    super('Your session has ended. Run `npx @formegifts/mcp auth` to sign in again.')
+    super(SESSION_ENDED_MESSAGE)
     this.name = 'SessionEndedError'
   }
 }
