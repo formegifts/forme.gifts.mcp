@@ -1,5 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { createWishlist, createWishlistInput } from './create-wishlist'
+import { deleteWishlist, deleteWishlistInput } from './delete-wishlist'
 import { getWishlist, getWishlistInput } from './get-wishlist'
 import { listWishlists, listWishlistsInput } from './list-wishlists'
 import { updateWishlist, updateWishlistInput } from './update-wishlist'
@@ -42,5 +43,15 @@ export const registerAllTools = (server: McpServer): void => {
       inputSchema: updateWishlistInput.shape,
     },
     withAuth(updateWishlist) as never
+  )
+
+  server.registerTool(
+    'delete_wishlist',
+    {
+      description:
+        'Delete a wishlist by id. Without `confirm: true`, returns a dry-run summary of what would be deleted. Pass `confirm: true` to actually delete.',
+      inputSchema: deleteWishlistInput.shape,
+    },
+    withAuth(deleteWishlist) as never
   )
 }
