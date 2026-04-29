@@ -1,3 +1,9 @@
+export const WISHLIST_COLUMNS =
+  'id, user_id, name, description, event_date, position, disabled, created_at, updated_at' as const
+
+export const GIFT_COLUMNS =
+  'id, wishlist_id, name, description, product_link, price_min, price_max, position, image_urls, created_at, updated_at' as const
+
 export type WishlistRow = {
   id: string
   user_id: string

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { McpToolError, mapSupabaseError } from '../errors'
-import type { GiftRow, WishlistRow } from '../supabase-types'
+import { GIFT_COLUMNS, type GiftRow, WISHLIST_COLUMNS, type WishlistRow } from '../supabase-types'
 import type { ToolHandler } from './with-auth'
 
 export const getWishlistInput = z
@@ -28,9 +28,7 @@ export const getWishlist: ToolHandler<GetWishlistInput, GetWishlistOutput> = asy
 
   const { data: wishlist, error } = await client
     .from('wishlists')
-    .select(
-      'id, user_id, name, description, event_date, position, disabled, created_at, updated_at'
-    )
+    .select(WISHLIST_COLUMNS)
     .eq(column, value)
     .maybeSingle()
   if (error) throw mapSupabaseError(error)
@@ -41,9 +39,7 @@ export const getWishlist: ToolHandler<GetWishlistInput, GetWishlistOutput> = asy
   const wishlistRow = wishlist as WishlistRow
   const { data: gifts, error: giftsError } = await client
     .from('gifts')
-    .select(
-      'id, wishlist_id, name, description, product_link, price_min, price_max, position, image_urls, created_at, updated_at'
-    )
+    .select(GIFT_COLUMNS)
     .eq('wishlist_id', wishlistRow.id)
     .order('position', { ascending: true })
   if (giftsError) throw mapSupabaseError(giftsError)
