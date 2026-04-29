@@ -4,6 +4,7 @@ import { createWishlist, createWishlistInput } from './create-wishlist'
 import { deleteWishlist, deleteWishlistInput } from './delete-wishlist'
 import { getWishlist, getWishlistInput } from './get-wishlist'
 import { listWishlists, listWishlistsInput } from './list-wishlists'
+import { updateGift, updateGiftInput } from './update-gift'
 import { updateWishlist, updateWishlistInput } from './update-wishlist'
 import { withAuth } from './with-auth'
 
@@ -64,5 +65,14 @@ export const registerAllTools = (server: McpServer): void => {
       inputSchema: createGiftInput.shape,
     },
     withAuth(createGift) as never
+  )
+
+  server.registerTool(
+    'update_gift',
+    {
+      description: "Update a gift's fields by id. At least one field besides id is required.",
+      inputSchema: updateGiftInput.shape,
+    },
+    withAuth(updateGift) as never
   )
 }
