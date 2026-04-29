@@ -1,9 +1,9 @@
 # Phase 2 Manual Smoke Test
 
 **Requires:**
-- Phase 1 smoke completed (you have valid credentials at `~/.config/forme/credentials.json`).
+- Valid credentials at `~/.config/forme/credentials.json` (run `node dist/bin.js auth` once).
 - `claude` CLI installed (Claude Code).
-- Either local Supabase running (`cd ../forme.gifts && supabase start && bun dev`) OR production credentials.
+- Either a local Supabase + web app stack running on `localhost:3000` / `localhost:54321`, OR production credentials.
 
 ## Local setup
 

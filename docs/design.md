@@ -1,9 +1,6 @@
 # forme.gifts MCP Server — Design
 
 **Status:** design locked 2026-04-24
-**Beads:** `forme-k6u` (run `bd show forme-k6u` in the forme.gifts workspace)
-**Web app repo:** [JacekZakowicz/forme.gifts](https://github.com/JacekZakowicz/forme.gifts) (private) — sibling checkout at `../forme.gifts/`
-**Depends on:** OAuth device flow — shipped in [forme.gifts §browser-extension.md](https://github.com/JacekZakowicz/forme.gifts/blob/master/docs/features/browser-extension.md#auth-architecture-shared-with-cli)
 
 ## Problem
 
@@ -22,15 +19,14 @@ A second, separate package (`@formegifts/cli`) with full human-facing commands (
 
 ### Repo layout
 
-The MCP package lives in a **separate private GitHub repo** (`formegifts/forme.gifts.mcp`), not in this one. Reasons:
+The MCP package lives in its own repo, separate from the web app:
 
-1. **No monorepo setup exists here** — adding bun workspaces, scoping every `check:*` / `build` / `test` script, and adjusting CI/Netlify config is a meaningful project of its own for one package. Cost > benefit at V1.
+1. **No monorepo setup exists in the web app** — adding bun workspaces, scoping every `check:*` / `build` / `test` script, and adjusting CI/Netlify config is a meaningful project of its own for one package. Cost > benefit at V1.
 2. **The MCP package is operationally independent** — it consumes the web app's existing REST + Supabase surface, ships on its own version cadence, and has its own CI.
-3. **Staying closed-source is a deliberate security posture.** Keeping the MCP repo private limits the public audit surface of ~2 KLOC of auth + data-access code. Supabase RLS does the real access enforcement, but we don't need to advertise the internal data-access shape (table names, column conventions, rate-limit details) to anyone probing the app. Open-sourcing this later is a one-way door we should take only when there's a concrete reason.
-4. **Upgrade path is open.** If we later want a real monorepo (cli + mcp + shared client together), absorbing a standalone repo is cheap. Both directions are reversible.
+3. **Upgrade path is open.** If a real monorepo (cli + mcp + shared client together) makes sense later, absorbing a standalone repo is cheap. Both directions are reversible.
 
 ```
-forme.gifts.mcp/               # separate repo, private (github.com/formegifts/forme.gifts.mcp)
+forme.gifts.mcp/
 ├── package.json               # name: "@formegifts/mcp", bin: "forme-mcp"
 ├── tsconfig.json
 ├── src/
@@ -62,11 +58,10 @@ forme.gifts.mcp/               # separate repo, private (github.com/formegifts/f
 
 ### Zod schema sharing
 
-Gift and wishlist shapes live in `src/lib/schemas/gift.ts` + `src/lib/schemas/wishlist.ts` in the **web app repo** (`../forme.gifts/src/lib/schemas/`, ~80 LOC combined). They are **vendored** into this repo's `src/schemas/` — manually copied, with a top-of-file header:
+Gift and wishlist shapes are authored in the web app and **vendored** into this repo's `src/schemas/` — manually copied, with a top-of-file header marking them as vendored.
 
 ```ts
-// Vendored from forme.gifts/src/lib/schemas/gift.ts
-// When changing schemas in the main repo, update the corresponding file here.
+// Vendored from the web app — keep in sync when schemas change there.
 // Integration tests catch drift by exercising each tool against a real Supabase row.
 ```
 
@@ -107,7 +102,7 @@ Destructive tools (`delete_*`) require `confirm: true` in the input. Omitting it
 
 ### Authentication
 
-Reuses the OAuth 2.0 Device Authorization Grant flow (RFC 8628) shipped in `forme-1bv`. The three existing endpoints:
+Reuses the OAuth 2.0 Device Authorization Grant flow (RFC 8628). The three endpoints:
 
 - `POST /api/auth/device` — issue `device_code` + `user_code` + `verification_uri`
 - `POST /api/auth/device/token` — poll for tokens once user approves
@@ -144,7 +139,7 @@ Two paths, chosen per tool:
 
 | Path | Used by | Why |
 |---|---|---|
-| **supabase-js direct** (with user's access token) | All CRUD tools (`list_*`, `get_*`, `create_*`, `update_*`, `delete_*`) | RLS already enforces access control per the project's database-first architecture. No new backend endpoints needed. Duplicates ~200 LOC of thin `.from().select()` calls from `src/lib/api/`, but avoids refactoring the browser-oriented web code to accept a server-side client instance. |
+| **supabase-js direct** (with user's access token) | All CRUD tools (`list_*`, `get_*`, `create_*`, `update_*`, `delete_*`) | RLS already enforces access control per the project's database-first architecture. No new backend endpoints needed. Duplicates ~200 LOC of thin `.from().select()` calls from the web app, but avoids refactoring the browser-oriented web code to accept a server-side client instance. |
 | **HTTP POST** to `https://forme.gifts/api/extract` with Bearer token | `add_gift_from_url` only | That endpoint requires backend-only Gemini credentials; it cannot be called from a user-context client. Two-step: POST URL → receive parsed product JSON → then call `create_gift` path internally to persist. |
 
 The supabase-js client is instantiated per tool call with the user's current access token (Authorization header). Anon key + project URL are compile-time constants in the package (public values — the web app exposes them too).
@@ -171,7 +166,7 @@ All errors include a `retryable: boolean` hint in their structured content so ag
 
 **Ship on day 1:**
 
-1. **npm package `@formegifts/mcp`** — primary install path. Published from CI on this repo. Node 24+, ESM+CJS dual build.
+1. **npm package `@formegifts/mcp`** — primary install path. Published from CI on this repo. Node 24+, ESM build.
 2. **`forme.gifts/mcp` route** — marketing + install page. Deep-link install buttons for each major host:
 
    | Host | Install method |
@@ -185,7 +180,7 @@ All errors include a `retryable: boolean` hint in their structured content so ag
 3. **Settings → Integrations** link in the app, pointing to `forme.gifts/mcp`.
 4. **npm README** mirrors the install snippets; links back to `forme.gifts/mcp` for richer content.
 
-**Deferred to future tickets:**
+**Deferred to future work:**
 
 - Homebrew formula (standalone bun-compiled binary for users without Node)
 - Remote hosted MCP at `mcp.forme.gifts` (HTTP + SSE transport, browser OAuth, zero-install) — biggest UX win but requires hosting infrastructure that speaks the MCP protocol
@@ -194,11 +189,9 @@ All errors include a `retryable: boolean` hint in their structured content so ag
 **package.json metadata:**
 
 - `homepage: "https://forme.gifts/mcp"` — always set
-- `repository` — **omitted** (private repo; a broken/private link on npmjs.com is worse than no link)
-- `bugs: { email: "feedback@forme.gifts" }` — channel for issue reports without a public tracker
-- Brief README noting the package is closed-source by design; source is auditable after install at `node_modules/@formegifts/mcp`
-
-**npm scope verified available** (2026-04-23): `@formegifts` is unclaimed on the registry. Scope will be claimed on first publish.
+- `repository` — points at this GitHub repo so npm displays a working source link and provenance attestation can verify
+- `bugs: { url, email }` — GitHub issues + feedback email
+- License: `UNLICENSED` (proprietary; use restricted to the forme.gifts service)
 
 ### Testing
 
@@ -206,7 +199,7 @@ Three layers:
 
 1. **Unit tests** (`test/tools/*.test.ts`) — one per tool. Mock supabase-js; assert Zod validation, error mapping, and output shape.
 2. **Integration tests** (`test/integration/*.test.ts`) — bring up local Supabase (`supabase start`), run real device-flow happy path against it, call each tool against the real local DB, teardown. Run in CI against a fresh supabase instance.
-3. **Manual smoke test** — install in Claude Code locally via `claude mcp add forme -- node /path/to/forme.gifts.mcp/dist/bin.js` (or the published package), exercise each tool interactively. Done before every release.
+3. **Manual smoke test** — install in Claude Code locally via `claude mcp add forme -- node /path/to/dist/bin.js` (or the published package), exercise each tool interactively. Done before every release.
 
 No tests mock the MCP protocol layer itself — we trust `@modelcontextprotocol/sdk`. Tests hit the tool handler functions directly.
 
@@ -216,12 +209,12 @@ No tests mock the MCP protocol layer itself — we trust `@modelcontextprotocol/
 
 - `@formegifts/mcp` npm package with stdio server + auth CLI subcommands
 - 9 tools as specified above
-- Device-flow auth reusing forme-1bv endpoints
+- Device-flow auth reusing the web app's existing endpoints
 - Supabase-direct transport for CRUD, HTTP for extract
 - `forme.gifts/mcp` marketing/install page with per-host deep links
 - Unit + integration + manual smoke tests
 
-### Out (follow-up tickets, tracked in beads after design is approved)
+### Out (follow-up work)
 
 - Full human CLI (`@formegifts/cli` — `forme add`, `forme list`, pretty tables, pickers)
 - Sharing tools (create / rotate / revoke share links)
@@ -236,9 +229,7 @@ No tests mock the MCP protocol layer itself — we trust `@modelcontextprotocol/
 
 | Risk | Mitigation |
 |---|---|
-| `@formegifts` npm scope unavailable | ~~Checked in phase 1 before publish~~ Verified available 2026-04-23; claimed on first publish. |
-| Zod schema drift between main repo and vendored copy | Integration tests insert/update/select real rows per tool; a drift fails CI loudly. If sync burden grows, extract to a shared `@formegifts/schemas` npm package (deferred). |
-| Closed-source install reduces trust for some users | `homepage` set to `forme.gifts/mcp`; README explains posture and points out `node_modules/@formegifts/mcp` is fully auditable post-install |
+| Zod schema drift between web app and vendored copy | Integration tests insert/update/select real rows per tool; a drift fails CI loudly. If sync burden grows, extract to a shared `@formegifts/schemas` npm package (deferred). |
 | Agents call destructive tools on hallucinated IDs | `confirm: true` requirement on all `delete_*` tools; dry-run preview when missing |
 | Credential file readable by other processes | `chmod 600` + XDG paths; explicit test that file is created with correct permissions |
 | Refresh token revoked mid-session | Reactive refresh + clear error message pointing to `auth` subcommand |
@@ -251,20 +242,11 @@ Phased so each phase delivers something testable.
 
 | Phase | Scope | Validation |
 |---|---|---|
-| **0. Repo provisioning** | Create private `forme-gifts/forme-mcp` GitHub repo, init with `bun init`, add TS config, testing (Vitest), CI skeleton. | Empty repo builds and tests cleanly on CI. |
-| **1. Package scaffold + auth CLI** | `bin.ts`, device-flow client, credential storage, `auth` / `auth logout` / `whoami` subcommands. Vendor Zod schemas from main repo. No MCP server yet. | `npx @formegifts/mcp auth` completes device flow against local Supabase and writes a readable credentials file. `whoami` reads it back. |
+| **0. Repo provisioning** | Init with `bun init`, add TS config, testing (Vitest), CI skeleton. | Empty repo builds and tests cleanly on CI. |
+| **1. Package scaffold + auth CLI** | `bin.ts`, device-flow client, credential storage, `auth` / `auth logout` / `whoami` subcommands. Vendor Zod schemas. No MCP server yet. | `npx @formegifts/mcp auth` completes device flow against local Supabase and writes a readable credentials file. `whoami` reads it back. |
 | **2. MCP server + read-only tools** | `list_wishlists`, `get_wishlist`. supabase-js client factory with access-token refresh. Zod input validation, error mapping. | `claude mcp add` locally, invoke both tools via Claude Code, see real data. |
 | **3. Write tools** | `create_wishlist`, `update_wishlist`, `delete_wishlist`, `create_gift`, `update_gift`, `delete_gift`. `confirm: true` on deletes. | Round-trip: agent creates wishlist, adds gifts, edits, deletes. Verify data in Supabase. |
 | **4. `add_gift_from_url`** | HTTP client for `/api/extract`, tool wiring, tier-gated error mapping. | Agent adds gift from a real Etsy URL end-to-end. Free-tier user sees upgrade error. |
 | **5. Distribution** | CI publish workflow, `forme.gifts/mcp` route with install buttons, Settings → Integrations link, npm README. | Fresh user installs via Claude Code deep-link, runs `auth`, adds a gift. |
 
 Phases 1–4 are sequential. Phase 5 can run in parallel with phase 4. Phase 0 gates everything.
-
-## Open Items Before Implementation
-
-- [x] Verify `@formegifts` npm scope availability — ✓ available (2026-04-23, registry 404 on scope)
-- [x] Confirm private GitHub repo naming — ✓ `formegifts/forme.gifts.mcp` (org created 2026-04-23)
-- [x] CI publish trigger — ✓ tag-based (`git push --tags` on `v*.*.*` triggers publish workflow)
-- [x] Node engines minimum — ✓ Node 24 (current LTS, active support through Oct 2026, maintenance through April 2028)
-
-All open items resolved. Ready to write the implementation plan.
