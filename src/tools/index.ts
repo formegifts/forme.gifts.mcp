@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { createGift, createGiftInput } from './create-gift'
 import { createWishlist, createWishlistInput } from './create-wishlist'
 import { deleteWishlist, deleteWishlistInput } from './delete-wishlist'
 import { getWishlist, getWishlistInput } from './get-wishlist'
@@ -53,5 +54,15 @@ export const registerAllTools = (server: McpServer): void => {
       inputSchema: deleteWishlistInput.shape,
     },
     withAuth(deleteWishlist) as never
+  )
+
+  server.registerTool(
+    'create_gift',
+    {
+      description:
+        'Create a gift inside a wishlist. Requires wishlist_id and name. Optional: description, product_link, price_min, price_max, image_urls (max 5).',
+      inputSchema: createGiftInput.shape,
+    },
+    withAuth(createGift) as never
   )
 }
