@@ -36,7 +36,7 @@ export const mapSupabaseError = (err: unknown): McpToolError => {
   if (isInvalidApiKey(e, lowerMsg)) {
     return new McpToolError(
       'failed_precondition',
-      'Server is misconfigured: FORME_SUPABASE_ANON_KEY is missing or wrong. Re-register the MCP server with the correct anon key (see docs/phase-2-smoke.md).',
+      'Server is misconfigured: FORME_SUPABASE_ANON_KEY is missing or wrong. Re-register the MCP server with the correct anon key.',
       false
     )
   }
