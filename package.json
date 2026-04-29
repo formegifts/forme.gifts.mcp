@@ -8,7 +8,7 @@
     "node": ">=24"
   },
   "bin": {
-    "forme-mcp": "./dist/bin.js"
+    "forme-mcp": "dist/bin.js"
   },
   "main": "./dist/bin.js",
   "exports": {

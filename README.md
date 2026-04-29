@@ -49,4 +49,4 @@ npx @formegifts/mcp auth
 
 ## Source
 
-This package is closed-source by design. The source is auditable after install at `node_modules/@formegifts/mcp`. Questions or feedback: feedback@forme.gifts
+Source: [github.com/formegifts/forme.gifts.mcp](https://github.com/formegifts/forme.gifts.mcp). Licensed for use with the forme.gifts service — see [LICENSE](./LICENSE). Questions or feedback: feedback@forme.gifts
