@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { createGift, createGiftInput } from './create-gift'
 import { createWishlist, createWishlistInput } from './create-wishlist'
+import { deleteGift, deleteGiftInput } from './delete-gift'
 import { deleteWishlist, deleteWishlistInput } from './delete-wishlist'
 import { getWishlist, getWishlistInput } from './get-wishlist'
 import { listWishlists, listWishlistsInput } from './list-wishlists'
@@ -74,5 +75,15 @@ export const registerAllTools = (server: McpServer): void => {
       inputSchema: updateGiftInput.shape,
     },
     withAuth(updateGift) as never
+  )
+
+  server.registerTool(
+    'delete_gift',
+    {
+      description:
+        'Delete a gift by id. Without `confirm: true`, returns a dry-run summary. Pass `confirm: true` to actually delete.',
+      inputSchema: deleteGiftInput.shape,
+    },
+    withAuth(deleteGift) as never
   )
 }
