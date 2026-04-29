@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { mapSupabaseError } from '../errors'
+import { McpToolError, mapSupabaseError } from '../errors'
 import {
   GIFT_DESCRIPTION_MAX_LENGTH,
   GIFT_NAME_MAX_LENGTH,
@@ -7,6 +7,7 @@ import {
   GIFT_PRODUCT_LINK_MAX_LENGTH,
 } from '../schemas/validation-constants'
 import { GIFT_COLUMNS, type GiftRow } from '../supabase-types'
+import { omitEmpty } from './omit-empty'
 import type { ToolHandler } from './with-auth'
 
 // Fields inlined from src/schemas/gift.ts because giftSchema is wrapped in
@@ -55,20 +56,33 @@ export const createGiftInput = z
 export type CreateGiftInput = z.infer<typeof createGiftInput>
 export type CreateGiftOutput = GiftRow
 
+// Goes through the SECURITY DEFINER RPC so the per-tier gift cap and the
+// trimmed-name / image-count validations defined alongside the schema are
+// enforced — a direct INSERT would skip them.
 export const createGift: ToolHandler<CreateGiftInput, CreateGiftOutput> = async (
   input,
   { client }
 ) => {
-  const row: Record<string, unknown> = { wishlist_id: input.wishlist_id, name: input.name }
-  if (input.description !== undefined && input.description !== '')
-    row.description = input.description
-  if (input.product_link !== undefined && input.product_link !== '')
-    row.product_link = input.product_link
-  if (input.price_min !== undefined && input.price_min !== null) row.price_min = input.price_min
-  if (input.price_max !== undefined && input.price_max !== null) row.price_max = input.price_max
-  if (input.image_urls !== undefined) row.image_urls = input.image_urls
+  const params = omitEmpty(input, {
+    wishlist_id: 'p_wishlist_id',
+    name: 'p_name',
+    description: 'p_description',
+    product_link: 'p_product_link',
+    price_min: 'p_price_min',
+    price_max: 'p_price_max',
+    image_urls: 'p_image_urls',
+  })
 
-  const { data, error } = await client.from('gifts').insert(row).select(GIFT_COLUMNS).single()
-  if (error) throw mapSupabaseError(error)
-  return data as GiftRow
+  const { data: id, error: rpcError } = await client.rpc('create_gift', params)
+  if (rpcError) throw mapSupabaseError(rpcError)
+  if (typeof id !== 'string')
+    throw new McpToolError('failed_precondition', 'create_gift RPC returned no id', false)
+
+  const { data: row, error: selectError } = await client
+    .from('gifts')
+    .select(GIFT_COLUMNS)
+    .eq('id', id)
+    .single()
+  if (selectError) throw mapSupabaseError(selectError)
+  return row as GiftRow
 }

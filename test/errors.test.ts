@@ -38,6 +38,22 @@ describe('mapSupabaseError', () => {
     expect(err.code).toBe('invalid_argument')
   })
 
+  it('maps configuration_limit_exceeded (53400) to resource_exhausted', () => {
+    const err = mapSupabaseError({
+      code: '53400',
+      message: 'Wishlist limit reached (1 allowed on your plan)',
+    })
+    expect(err.code).toBe('resource_exhausted')
+    expect(err.retryable).toBe(false)
+    expect(err.message).toMatch(/limit reached/i)
+  })
+
+  it('maps RPC RAISE EXCEPTION (P0001) errors to failed_precondition', () => {
+    const err = mapSupabaseError({ code: 'P0001', message: 'Wishlist name is required' })
+    expect(err.code).toBe('failed_precondition')
+    expect(err.retryable).toBe(false)
+  })
+
   it('maps non-JWT HTTP 401 to unauthenticated, preserving original message', () => {
     const err = mapSupabaseError({ status: 401, message: 'Unauthorized' })
     expect(err.code).toBe('unauthenticated')

@@ -1,27 +1,36 @@
 import type { z } from 'zod'
-import { mapSupabaseError } from '../errors'
+import { McpToolError, mapSupabaseError } from '../errors'
 import { wishlistSchema } from '../schemas/wishlist'
 import { WISHLIST_COLUMNS, type WishlistRow } from '../supabase-types'
+import { omitEmpty } from './omit-empty'
 import type { ToolHandler } from './with-auth'
 
 export const createWishlistInput = wishlistSchema.strict()
 export type CreateWishlistInput = z.infer<typeof createWishlistInput>
 export type CreateWishlistOutput = WishlistRow
 
+// Direct INSERT would (1) fail RLS (wishlists.user_id is NOT NULL with no default)
+// and (2) bypass the per-tier wishlist cap the RPC enforces.
 export const createWishlist: ToolHandler<CreateWishlistInput, CreateWishlistOutput> = async (
   input,
   { client }
 ) => {
-  const row: Record<string, unknown> = { name: input.name }
-  if (input.description !== undefined && input.description !== '')
-    row.description = input.description
-  if (input.event_date !== undefined && input.event_date !== '') row.event_date = input.event_date
+  const params = omitEmpty(input, {
+    name: 'p_name',
+    description: 'p_description',
+    event_date: 'p_event_date',
+  })
 
-  const { data, error } = await client
+  const { data: id, error: rpcError } = await client.rpc('create_wishlist', params)
+  if (rpcError) throw mapSupabaseError(rpcError)
+  if (typeof id !== 'string')
+    throw new McpToolError('failed_precondition', 'create_wishlist RPC returned no id', false)
+
+  const { data: row, error: selectError } = await client
     .from('wishlists')
-    .insert(row)
     .select(WISHLIST_COLUMNS)
+    .eq('id', id)
     .single()
-  if (error) throw mapSupabaseError(error)
-  return data as WishlistRow
+  if (selectError) throw mapSupabaseError(selectError)
+  return row as WishlistRow
 }

@@ -27,6 +27,13 @@ type SupabaseLikeError = {
   message?: string
 }
 
+const PG_INSUFFICIENT_PRIVILEGE = '42501'
+const PG_NOT_NULL_VIOLATION = '23502'
+const PG_CHECK_VIOLATION = '23514'
+const PG_RAISE_EXCEPTION = 'P0001'
+const PG_CONFIG_LIMIT_EXCEEDED = '53400'
+const PGRST_NO_ROWS = 'PGRST116'
+
 const isInvalidApiKey = (e: SupabaseLikeError, lowerMsg: string): boolean =>
   e.code === 'invalid_api_key' || lowerMsg.includes('invalid api key')
 
@@ -52,9 +59,11 @@ export const mapSupabaseError = (err: unknown): McpToolError => {
     return new McpToolError('unauthenticated', SESSION_ENDED_MESSAGE, false)
   // JWT-bearing 401s are folded into re-auth UX above; this catches non-JWT 401s.
   if (e.status === 401) return new McpToolError('unauthenticated', msg, false)
-  if (e.code === '42501') return new McpToolError('permission_denied', msg, false)
-  if (e.code === 'PGRST116') return new McpToolError('invalid_argument', msg, false)
-  if (e.code === '23502' || e.code === '23514')
+  if (e.code === PG_INSUFFICIENT_PRIVILEGE) return new McpToolError('permission_denied', msg, false)
+  if (e.code === PGRST_NO_ROWS) return new McpToolError('invalid_argument', msg, false)
+  if (e.code === PG_NOT_NULL_VIOLATION || e.code === PG_CHECK_VIOLATION)
     return new McpToolError('invalid_argument', msg, false)
+  if (e.code === PG_CONFIG_LIMIT_EXCEEDED) return new McpToolError('resource_exhausted', msg, false)
+  if (e.code === PG_RAISE_EXCEPTION) return new McpToolError('failed_precondition', msg, false)
   return new McpToolError('unavailable', msg, true)
 }

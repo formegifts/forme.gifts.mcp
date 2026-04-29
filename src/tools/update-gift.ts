@@ -7,6 +7,7 @@ import {
   GIFT_PRODUCT_LINK_MAX_LENGTH,
 } from '../schemas/validation-constants'
 import { GIFT_COLUMNS, type GiftRow } from '../supabase-types'
+import { omitEmpty } from './omit-empty'
 import type { ToolHandler } from './with-auth'
 
 export const updateGiftInput = z
@@ -33,15 +34,8 @@ export const updateGift: ToolHandler<UpdateGiftInput, UpdateGiftOutput> = async 
   input,
   { client }
 ) => {
-  const patch: Record<string, unknown> = {}
-  if (input.name !== undefined) patch.name = input.name
-  if (input.description !== undefined && input.description !== '')
-    patch.description = input.description
-  if (input.product_link !== undefined && input.product_link !== '')
-    patch.product_link = input.product_link
-  if (input.price_min !== undefined && input.price_min !== null) patch.price_min = input.price_min
-  if (input.price_max !== undefined && input.price_max !== null) patch.price_max = input.price_max
-  if (input.image_urls !== undefined) patch.image_urls = input.image_urls
+  const { id, ...rest } = input
+  const patch = omitEmpty(rest)
 
   if (Object.keys(patch).length === 0) {
     throw new McpToolError('invalid_argument', 'Provide at least one field to update.', false)
@@ -50,7 +44,7 @@ export const updateGift: ToolHandler<UpdateGiftInput, UpdateGiftOutput> = async 
   const { data, error } = await client
     .from('gifts')
     .update(patch)
-    .eq('id', input.id)
+    .eq('id', id)
     .select(GIFT_COLUMNS)
     .single()
   if (error) throw mapSupabaseError(error)

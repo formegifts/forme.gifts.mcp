@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { McpToolError, mapSupabaseError } from '../errors'
 import { wishlistSchema } from '../schemas/wishlist'
 import { WISHLIST_COLUMNS, type WishlistRow } from '../supabase-types'
+import { omitEmpty } from './omit-empty'
 import type { ToolHandler } from './with-auth'
 
 export const updateWishlistInput = wishlistSchema
@@ -17,11 +18,8 @@ export const updateWishlist: ToolHandler<UpdateWishlistInput, UpdateWishlistOutp
   input,
   { client }
 ) => {
-  const patch: Record<string, unknown> = {}
-  if (input.name !== undefined) patch.name = input.name
-  if (input.description !== undefined && input.description !== '')
-    patch.description = input.description
-  if (input.event_date !== undefined && input.event_date !== '') patch.event_date = input.event_date
+  const { id, ...rest } = input
+  const patch = omitEmpty(rest)
 
   if (Object.keys(patch).length === 0) {
     throw new McpToolError('invalid_argument', 'Provide at least one field to update.', false)
@@ -30,7 +28,7 @@ export const updateWishlist: ToolHandler<UpdateWishlistInput, UpdateWishlistOutp
   const { data, error } = await client
     .from('wishlists')
     .update(patch)
-    .eq('id', input.id)
+    .eq('id', id)
     .select(WISHLIST_COLUMNS)
     .single()
   if (error) throw mapSupabaseError(error)
