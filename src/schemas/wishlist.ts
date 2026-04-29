@@ -1,5 +1,4 @@
-// Vendored from ../forme.gifts/src/lib/schemas/wishlist.ts
-// When changing schemas in the web app repo, update this file.
+// Vendored from the forme.gifts web app — keep in sync when the source schema changes.
 
 import { z } from 'zod'
 import { WISHLIST_DESCRIPTION_MAX_LENGTH, WISHLIST_NAME_MAX_LENGTH } from './validation-constants'

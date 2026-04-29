@@ -1,5 +1,4 @@
-// Vendored from ../forme.gifts/src/lib/constants/validation.ts
-// When changing constants in the web app repo, update this file.
+// Vendored from the forme.gifts web app — keep in sync when the source changes.
 // Integration tests catch drift by exercising tools against a real row.
 
 export const WISHLIST_NAME_MAX_LENGTH = 100

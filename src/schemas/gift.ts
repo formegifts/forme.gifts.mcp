@@ -1,5 +1,4 @@
-// Vendored from ../forme.gifts/src/lib/schemas/gift.ts
-// When changing schemas in the web app repo, update this file.
+// Vendored from the forme.gifts web app — keep in sync when the source schema changes.
 
 import { z } from 'zod'
 import {
