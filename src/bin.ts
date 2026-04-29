@@ -1,3 +1,5 @@
+import { realpathSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 import { runAuth, runLogout, runWhoami } from './auth/cli'
 import { runServer } from './server'
 
@@ -26,7 +28,10 @@ export const dispatch = async (argv: string[], deps: DispatchDeps): Promise<void
   exit(2)
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`
+// Symlink-safe main detection: npm bin is a symlink, so we resolve before comparing.
+const isMain =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 if (isMain) {
   dispatch(process.argv.slice(2), {
     runAuth,
