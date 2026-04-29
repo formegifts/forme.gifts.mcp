@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { createWishlist, createWishlistInput } from './create-wishlist'
 import { getWishlist, getWishlistInput } from './get-wishlist'
 import { listWishlists, listWishlistsInput } from './list-wishlists'
+import { updateWishlist, updateWishlistInput } from './update-wishlist'
 import { withAuth } from './with-auth'
 
 export const registerAllTools = (server: McpServer): void => {
@@ -31,5 +32,15 @@ export const registerAllTools = (server: McpServer): void => {
       inputSchema: createWishlistInput.shape,
     },
     withAuth(createWishlist) as never
+  )
+
+  server.registerTool(
+    'update_wishlist',
+    {
+      description:
+        "Update a wishlist's name, description, or event_date by id. At least one field besides id is required.",
+      inputSchema: updateWishlistInput.shape,
+    },
+    withAuth(updateWishlist) as never
   )
 }
