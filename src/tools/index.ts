@@ -1,4 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { authPoll, authPollInput } from './auth-poll'
+import { authStart, authStartInput } from './auth-start'
 import { createGift, createGiftInput } from './create-gift'
 import { createWishlist, createWishlistInput } from './create-wishlist'
 import { deleteGift, deleteGiftInput } from './delete-gift'
@@ -7,9 +9,29 @@ import { getWishlist, getWishlistInput } from './get-wishlist'
 import { listWishlists, listWishlistsInput } from './list-wishlists'
 import { updateGift, updateGiftInput } from './update-gift'
 import { updateWishlist, updateWishlistInput } from './update-wishlist'
-import { withAuth } from './with-auth'
+import { withAuth, wrapTool } from './with-auth'
 
 export const registerAllTools = (server: McpServer): void => {
+  server.registerTool(
+    'auth_start',
+    {
+      description:
+        'Start the sign-in flow. Returns a verification URL and short user code. Show both to the user, ask them to open the URL and approve, then call `auth_poll` with the returned `device_code`.',
+      inputSchema: authStartInput.shape,
+    },
+    wrapTool(authStart) as never
+  )
+
+  server.registerTool(
+    'auth_poll',
+    {
+      description:
+        'Complete the sign-in flow started by `auth_start`. Pass the `device_code` from that response. Returns `signed_in` (with email) once the user approves, `pending` if still waiting (call this tool again), or `expired` (start over with `auth_start`).',
+      inputSchema: authPollInput.shape,
+    },
+    wrapTool(authPoll) as never
+  )
+
   server.registerTool(
     'list_wishlists',
     {

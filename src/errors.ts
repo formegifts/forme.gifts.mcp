@@ -7,7 +7,7 @@ export type ToolErrorCode =
   | 'unavailable'
 
 export const SESSION_ENDED_MESSAGE =
-  'Your session has ended. Run `npx @formegifts/mcp auth` to sign in again.'
+  'Your session has ended. Call the `auth_start` tool to sign in again, or run `formegifts-mcp auth` from a terminal.'
 
 export class McpToolError extends Error {
   readonly code: ToolErrorCode

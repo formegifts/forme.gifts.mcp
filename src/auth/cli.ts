@@ -61,6 +61,9 @@ export const runAuth = async (deps: AuthDeps = defaultAuthDeps): Promise<void> =
       deps.log(`Signed in as ${email}.`)
       return
     }
+    if (result.status === 'expired') {
+      throw new Error('Device code expired. Run `formegifts-mcp auth` again.')
+    }
     if (result.status === 'slow_down') intervalMs *= 2
   }
   throw new Error('Authentication timed out — run `formegifts-mcp auth` again.')

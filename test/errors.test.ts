@@ -65,14 +65,14 @@ describe('mapSupabaseError', () => {
     const err = mapSupabaseError({ message: 'No suitable key or wrong key type' })
     expect(err.code).toBe('unauthenticated')
     expect(err.retryable).toBe(false)
-    expect(err.message).toMatch(/npx @formegifts\/mcp auth/)
+    expect(err.message).toMatch(/auth_start/)
   })
 
   it('maps generic JWS verification failures to unauthenticated', () => {
     const err = mapSupabaseError({ message: 'jws: signature verification failed' })
     expect(err.code).toBe('unauthenticated')
     expect(err.retryable).toBe(false)
-    expect(err.message).toMatch(/npx @formegifts\/mcp auth/)
+    expect(err.message).toMatch(/auth_start/)
   })
 
   it('maps invalid_api_key code to failed_precondition with config-pointing message', () => {

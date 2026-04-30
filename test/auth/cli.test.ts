@@ -55,6 +55,12 @@ describe('runAuth', () => {
     expect(poll).toHaveBeenCalledTimes(3)
   })
 
+  it('throws on expired device code', async () => {
+    const poll = vi.fn().mockResolvedValueOnce({ status: 'expired' })
+    const deps = makeDeps({ pollDeviceCode: poll })
+    await expect(runAuth(deps)).rejects.toThrow(/expired/i)
+  })
+
   it('doubles interval on slow_down', async () => {
     const poll = vi
       .fn()

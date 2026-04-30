@@ -12,7 +12,7 @@ export const issueDeviceCode = async (): Promise<DeviceCodeResponse> => {
   const res = await fetch(`${API_BASE}/api/auth/device`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ client_type: 'cli' }),
+    body: JSON.stringify({ client_type: 'mcp' }),
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: 'network_error' }))
@@ -28,6 +28,7 @@ export type PollResult =
     }
   | { status: 'pending' }
   | { status: 'slow_down' }
+  | { status: 'expired' }
 
 export const pollDeviceCode = async (deviceCode: string): Promise<PollResult> => {
   const res = await fetch(`${API_BASE}/api/auth/device/token`, {
@@ -55,7 +56,7 @@ export const pollDeviceCode = async (deviceCode: string): Promise<PollResult> =>
     case 'slow_down':
       return { status: 'slow_down' }
     case 'expired_token':
-      throw new Error('Device code expired. Run `formegifts-mcp auth` again.')
+      return { status: 'expired' }
     default:
       throw new Error(`${body.error ?? 'unknown'}: ${body.error_description ?? res.statusText}`)
   }

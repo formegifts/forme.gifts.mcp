@@ -3,6 +3,18 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.0 — 2026-04-30
+
+### Added
+
+- `auth_start` and `auth_poll` MCP tools — sign in directly through the MCP host (Claude Code, Claude Desktop, Cursor, etc.) without dropping to a terminal. `auth_start` returns a verification URL and short user code; `auth_poll` blocks for up to 45s waiting for the user to approve in the browser, then persists credentials.
+
+### Changed
+
+- Device flow now reports `client_type='mcp'` instead of `'cli'`. The web app's authorization screen labels the request as "Forme MCP server" instead of "Forme CLI".
+- `pollDeviceCode` returns `{status:'expired'}` instead of throwing on `expired_token`. CLI behavior is unchanged.
+- `unauthenticated` re-auth message now points users to the `auth_start` tool first, with the terminal `formegifts-mcp auth` command as a fallback.
+
 ## 0.2.2 — 2026-04-30
 
 ### Fixed

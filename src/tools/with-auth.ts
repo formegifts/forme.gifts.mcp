@@ -29,6 +29,26 @@ const toolError = <O>(payload: ToolErrorPayload): CallToolResult<O> => ({
   isError: true,
 })
 
+const toolSuccess = <O>(result: O): CallToolResult<O> => ({
+  content: [{ type: 'text', text: JSON.stringify(result) }],
+  structuredContent: result,
+})
+
+const mapErr = <O>(err: unknown): CallToolResult<O> => {
+  const mapped = err instanceof McpToolError ? err : mapSupabaseError(err)
+  return toolError({ code: mapped.code, message: mapped.message, retryable: mapped.retryable })
+}
+
+export const wrapTool =
+  <I, O>(handler: (input: I) => Promise<O>): ((input: I) => Promise<CallToolResult<O>>) =>
+  async (input: I): Promise<CallToolResult<O>> => {
+    try {
+      return toolSuccess(await handler(input))
+    } catch (err) {
+      return mapErr(err)
+    }
+  }
+
 export const withAuth =
   <I, O>(
     handler: ToolHandler<I, O>,
@@ -42,19 +62,13 @@ export const withAuth =
       if (err instanceof SessionEndedError) {
         return toolError({ code: 'unauthenticated', message: err.message, retryable: false })
       }
-      const mapped = mapSupabaseError(err)
-      return toolError({ code: mapped.code, message: mapped.message, retryable: mapped.retryable })
+      return mapErr(err)
     }
 
     try {
       const client = deps.createClient(token)
-      const result = await handler(input, { client })
-      return {
-        content: [{ type: 'text', text: JSON.stringify(result) }],
-        structuredContent: result,
-      }
+      return toolSuccess(await handler(input, { client }))
     } catch (err) {
-      const mapped = err instanceof McpToolError ? err : mapSupabaseError(err)
-      return toolError({ code: mapped.code, message: mapped.message, retryable: mapped.retryable })
+      return mapErr(err)
     }
   }

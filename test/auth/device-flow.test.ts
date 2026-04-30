@@ -10,7 +10,7 @@ describe('issueDeviceCode', () => {
     vi.restoreAllMocks()
   })
 
-  it('POSTs { client_type: "cli" } to /api/auth/device and returns the parsed response', async () => {
+  it('POSTs { client_type: "mcp" } to /api/auth/device and returns the parsed response', async () => {
     const response = {
       device_code: 'dev123',
       user_code: 'AAAA-BBBB',
@@ -29,7 +29,7 @@ describe('issueDeviceCode', () => {
     expect(url).toBe('https://forme.gifts/api/auth/device')
     expect(init.method).toBe('POST')
     expect(init.headers).toMatchObject({ 'content-type': 'application/json' })
-    expect(JSON.parse(init.body as string)).toEqual({ client_type: 'cli' })
+    expect(JSON.parse(init.body as string)).toEqual({ client_type: 'mcp' })
     expect(result).toEqual(response)
   })
 
@@ -81,11 +81,11 @@ describe('pollDeviceCode', () => {
     expect(await pollDeviceCode('dev123')).toEqual({ status: 'slow_down' })
   })
 
-  it('throws on expired_token', async () => {
+  it('returns expired on expired_token', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ error: 'expired_token', error_description: '' }), { status: 400 })
     )
-    await expect(pollDeviceCode('dev123')).rejects.toThrow(/expired/)
+    expect(await pollDeviceCode('dev123')).toEqual({ status: 'expired' })
   })
 
   it('sends correct POST body', async () => {
