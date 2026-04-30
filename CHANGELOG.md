@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.2.2 — 2026-04-30
+
+### Fixed
+
+- Restored `forme-mcp` as first bin entry so `npx @formegifts/mcp` continues to work; `formegifts-mcp` is the second entry (global install alias).
+
 ## 0.2.1 — 2026-04-30
 
 ### Added
