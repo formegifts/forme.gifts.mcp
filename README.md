@@ -42,12 +42,14 @@ npx -y @formegifts/mcp
 
 ## Authentication
 
-After installing, sign in once:
+The first time you use any tool, the server will return an `unauthenticated` error pointing at the `auth_start` tool. Just ask your MCP host (Claude Code, Claude Desktop, Cursor, …) to sign you in — it will call `auth_start`, show you a verification URL and short code, and complete the sign-in via `auth_poll` after you approve in your browser.
+
+If you'd rather sign in from a terminal (handy for CI or pre-warming credentials):
 ```sh
 npx @formegifts/mcp auth
 ```
 
-If installed globally (`npm install -g @formegifts/mcp`), use the `formegifts-mcp` command directly (`forme-mcp` is a legacy alias that also works):
+If installed globally (`npm install -g @formegifts/mcp`), use `formegifts-mcp` directly (`forme-mcp` is a legacy alias that also works):
 ```sh
 formegifts-mcp auth
 ```

@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.1 — 2026-04-30
+
+### Changed
+
+- README leads with the in-host `auth_start` flow. Terminal `auth` command kept as a secondary path for CI / pre-warming credentials.
+
 ## 0.3.0 — 2026-04-30
 
 ### Added
