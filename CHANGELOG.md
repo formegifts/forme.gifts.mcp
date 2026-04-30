@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.2.1 — 2026-04-30
+
+### Added
+
+- `formegifts-mcp` bin alias — canonical command, scoped to match the npm package `@formegifts/mcp`. `forme-mcp` remains as a backwards-compatible alias.
+
 ## 0.2.0 — 2026-04-30
 
 ### Added

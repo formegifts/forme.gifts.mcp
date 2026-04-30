@@ -55,7 +55,7 @@ export const pollDeviceCode = async (deviceCode: string): Promise<PollResult> =>
     case 'slow_down':
       return { status: 'slow_down' }
     case 'expired_token':
-      throw new Error('Device code expired. Run `forme-mcp auth` again.')
+      throw new Error('Device code expired. Run `formegifts-mcp auth` again.')
     default:
       throw new Error(`${body.error ?? 'unknown'}: ${body.error_description ?? res.statusText}`)
   }

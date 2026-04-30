@@ -63,7 +63,7 @@ export const runAuth = async (deps: AuthDeps = defaultAuthDeps): Promise<void> =
     }
     if (result.status === 'slow_down') intervalMs *= 2
   }
-  throw new Error('Authentication timed out — run `forme-mcp auth` again.')
+  throw new Error('Authentication timed out — run `formegifts-mcp auth` again.')
 }
 
 export const runLogout = async (
@@ -80,7 +80,7 @@ export const runWhoami = async (
 ): Promise<void> => {
   const creds = await readCreds()
   if (!creds) {
-    log('Not signed in. Run `forme-mcp auth` to sign in.')
+    log('Not signed in. Run `formegifts-mcp auth` to sign in.')
     process.exitCode = 1
     return
   }

@@ -101,7 +101,7 @@ describe('runWhoami', () => {
   it('prints not-signed-in message and sets exit code when no creds', async () => {
     const log = vi.fn()
     await runWhoami(async () => null, log)
-    expect(log).toHaveBeenCalledWith('Not signed in. Run `forme-mcp auth` to sign in.')
+    expect(log).toHaveBeenCalledWith('Not signed in. Run `formegifts-mcp auth` to sign in.')
     expect(process.exitCode).toBe(1)
     process.exitCode = 0
   })

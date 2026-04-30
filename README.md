@@ -47,6 +47,11 @@ After installing, sign in once:
 npx @formegifts/mcp auth
 ```
 
+If installed globally (`npm install -g @formegifts/mcp`), use the `formegifts-mcp` command directly (`forme-mcp` is a legacy alias that also works):
+```sh
+formegifts-mcp auth
+```
+
 ## Source
 
 Source: [github.com/formegifts/forme.gifts.mcp](https://github.com/formegifts/forme.gifts.mcp). Licensed for use with the forme.gifts service — see [LICENSE](./LICENSE). Questions or feedback: feedback@forme.gifts

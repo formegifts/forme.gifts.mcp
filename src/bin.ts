@@ -24,7 +24,7 @@ export const dispatch = async (argv: string[], deps: DispatchDeps): Promise<void
   if (cmd === 'auth' && !sub) return deps.runAuth()
   if (cmd === 'auth' && sub === 'logout') return deps.runLogout()
   if (cmd === 'whoami') return deps.runWhoami()
-  log('Usage: forme-mcp [serve|auth|auth logout|whoami]')
+  log('Usage: formegifts-mcp [serve|auth|auth logout|whoami]')
   exit(2)
 }
 
