@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.3 — 2026-04-30
+
+### Changed
+
+- Publishing to npm is now automated via GitHub Actions on tag push (`v*.*.*`). No more manual `npm publish`.
+
 ## 0.3.2 — 2026-04-30
 
 ### Fixed
