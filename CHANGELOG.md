@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.2 — 2026-04-30
+
+### Fixed
+
+- `SERVER_VERSION` (the version the MCP server advertises to hosts via `McpServer({ name, version })`) was hardcoded as `'0.1.0'` and had drifted six releases behind the package version. It is now injected at build time from `package.json` via tsup's `define`, so it always matches the published version.
+
 ## 0.3.1 — 2026-04-30
 
 ### Changed
