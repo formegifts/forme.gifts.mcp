@@ -6,14 +6,14 @@ MCP server for the forme.gifts wishlist app — manage wishlists and gifts from 
 
 **Claude Code:**
 ```sh
-claude mcp add --scope user forme -- npx -y @formegifts/mcp
+claude mcp add --scope user formegifts -- npx -y @formegifts/mcp
 ```
 
 **Claude Desktop** — add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "forme": {
+    "formegifts": {
       "command": "npx",
       "args": ["-y", "@formegifts/mcp"]
     }
@@ -25,7 +25,7 @@ claude mcp add --scope user forme -- npx -y @formegifts/mcp
 ```json
 {
   "mcpServers": {
-    "forme": {
+    "formegifts": {
       "command": "npx",
       "args": ["-y", "@formegifts/mcp"]
     }

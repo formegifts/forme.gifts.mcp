@@ -3,6 +3,12 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.4 — 2026-05-01
+
+### Changed
+
+- Recommended MCP server key in install examples changed from `"forme"` to `"formegifts"` for consistency with the npm package name (`@formegifts/mcp`). Existing users with `"forme"` in their host config don't need to change anything — the server itself doesn't care about the key.
+
 ## 0.3.3 — 2026-04-30
 
 ### Changed
