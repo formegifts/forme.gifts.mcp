@@ -3,6 +3,13 @@
 All notable changes to `@formegifts/mcp` are documented here.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.3.5 — 2026-05-18
+
+### Changed
+
+- Supply-chain hardening in CI: `bun install` is now wrapped with [Socket Firewall](https://socket.dev/) in both `ci.yml` and `release.yml`, blocking known-malicious packages before they hit the runner.
+- Release workflow now publishes via `bun publish --provenance --access public` instead of `npm publish`, dropping the `setup-node` step. Provenance attestation is unchanged.
+
 ## 0.3.4 — 2026-05-01
 
 ### Changed

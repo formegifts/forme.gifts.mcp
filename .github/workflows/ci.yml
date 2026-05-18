@@ -13,7 +13,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - run: bun install --frozen-lockfile
+      - run: bun add -g sfw && sfw bun install --frozen-lockfile
       - run: bun run check
       - run: bun run typecheck
       - run: bun run test
