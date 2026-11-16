@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { mapSupabaseError } from '../errors'
-import { isWishlistExpired } from '../wishlist-expiry'
 import type { ToolHandler } from './with-auth'
 
 export const listWishlistsInput = z.object({}).strict()
@@ -23,6 +22,8 @@ type Row = {
   description: string | null
   event_date: string | null
   updated_at: string
+  /** forme.gifts computed column `public.is_expired(wishlists)`. */
+  is_expired: boolean
   gifts: Array<{ count: number }> | null
 }
 
@@ -34,7 +35,7 @@ export const listWishlists: ToolHandler<ListWishlistsInput, ListWishlistsOutput>
 ) => {
   const { data, error } = await client
     .from('wishlists')
-    .select('id, name, description, event_date, updated_at, gifts(count)')
+    .select('id, name, description, event_date, updated_at, is_expired, gifts(count)')
     .eq('disabled', false)
     // The stash is a wishlists row (kind = 'stash') but never a list.
     .eq('kind', 'regular')
@@ -47,7 +48,7 @@ export const listWishlists: ToolHandler<ListWishlistsInput, ListWishlistsOutput>
     event_date: row.event_date,
     gift_count: row.gifts?.[0]?.count ?? 0,
     updated_at: row.updated_at,
-    is_expired: isWishlistExpired(row.event_date),
+    is_expired: row.is_expired,
   }))
   return { wishlists }
 }

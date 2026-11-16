@@ -38,6 +38,7 @@ describe('list_wishlists', () => {
         description: null,
         event_date: null,
         updated_at: '2026-04-25T00:00:00Z',
+        is_expired: false,
         gifts: [{ count: 3 }],
       },
     ])
