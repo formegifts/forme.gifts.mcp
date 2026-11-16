@@ -47,7 +47,8 @@ describe('list_wishlists', () => {
     expect(calls[1].method).toBe('select')
     expect(calls[1].args[0]).toContain('gifts(count)')
     expect(calls[2]).toEqual({ method: 'eq', args: ['disabled', false] })
-    expect(calls[3]).toEqual({ method: 'order', args: ['updated_at', { ascending: false }] })
+    expect(calls[3]).toEqual({ method: 'eq', args: ['kind', 'regular'] })
+    expect(calls[4]).toEqual({ method: 'order', args: ['updated_at', { ascending: false }] })
     expect(result).toEqual({
       wishlists: [
         {
@@ -57,6 +58,7 @@ describe('list_wishlists', () => {
           event_date: null,
           gift_count: 3,
           updated_at: '2026-04-25T00:00:00Z',
+          is_expired: false,
         },
       ],
     })
