@@ -12,6 +12,8 @@ export type WishlistSummary = {
   event_date: string | null
   gift_count: number
   updated_at: string
+  /** Ended lists are read-only: no gift adds/edits, guests see an "ended" page. */
+  is_expired: boolean
 }
 
 type Row = {
@@ -20,6 +22,8 @@ type Row = {
   description: string | null
   event_date: string | null
   updated_at: string
+  /** forme.gifts computed column `public.is_expired(wishlists)`. */
+  is_expired: boolean
   gifts: Array<{ count: number }> | null
 }
 
@@ -31,8 +35,10 @@ export const listWishlists: ToolHandler<ListWishlistsInput, ListWishlistsOutput>
 ) => {
   const { data, error } = await client
     .from('wishlists')
-    .select('id, name, description, event_date, updated_at, gifts(count)')
+    .select('id, name, description, event_date, updated_at, is_expired, gifts(count)')
     .eq('disabled', false)
+    // The stash is a wishlists row (kind = 'stash') but never a list.
+    .eq('kind', 'regular')
     .order('updated_at', { ascending: false })
   if (error) throw mapSupabaseError(error)
   const wishlists = ((data ?? []) as Row[]).map((row) => ({
@@ -42,6 +48,7 @@ export const listWishlists: ToolHandler<ListWishlistsInput, ListWishlistsOutput>
     event_date: row.event_date,
     gift_count: row.gifts?.[0]?.count ?? 0,
     updated_at: row.updated_at,
+    is_expired: row.is_expired,
   }))
   return { wishlists }
 }
